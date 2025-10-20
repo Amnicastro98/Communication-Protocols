@@ -65,7 +65,7 @@ Data is typically transmitted MSB (Most Significant Bit) first.
 // Initialize SPI as Master
 void SPI_MasterInit(void) {
     // Set MOSI, SCK, SS as output
-    DDRB |= (1 << MOSI) | (1 << SCK) | (1 << SS);
+    DDRB |= (1 << MOSI) | (1 << SCK) | (1 << SS); // DDRB = Data Direction Register for port B
     // Set MISO as input
     DDRB &= ~(1 << MISO);
     
