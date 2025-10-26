@@ -5,14 +5,17 @@ This document covers the fundamental bitwise operators in C and basic bit manipu
 ## Bitwise Operators
 
 ### 1. Bitwise AND (&)
-Performs a bitwise AND operation. The result has a 1 only where both operands have 1.
+Performs a bitwise AND operation. The result has a 1 only where both operands have 1. This is commonly used for:
+- Masking specific bits (extracting certain bits from a value)
+- Clearing bits (setting specific bits to 0)
+- Checking if multiple flags are set simultaneously
 
 ```c
 #include <stdio.h>
 
 int main() {
-    unsigned char a = 0b10101010;  // 170 in decimal
-    unsigned char b = 0b11001100;  // 204 in decimal
+    unsigned char a = 0b10101010;  // 170 in decimal - alternating 1s and 0s
+    unsigned char b = 0b11001100;  // 204 in decimal - different pattern
 
     unsigned char result = a & b;  // 0b10001000 (136 in decimal)
     printf("a & b = %d\n", result);
@@ -21,72 +24,113 @@ int main() {
 ```
 
 ### 2. Bitwise OR (|)
-Performs a bitwise OR operation. The result has a 1 where either operand has 1.
+Performs a bitwise OR operation. The result has a 1 where either operand has 1. This is commonly used for:
+- Setting multiple bits simultaneously (combining flags)
+- Creating bit masks that include certain bits
+- Merging different bit fields into a single value
 
 ```c
-unsigned char result = a | b;  // 0b11101110 (238 in decimal)
+// Bitwise OR: result bit is 1 if either input bit is 1
+// a:     1 0 1 0 1 0 1 0
+// b:     1 1 0 0 1 1 0 0
+// a | b: 1 1 1 0 1 1 1 0  = 238 in decimal
+unsigned char result = a | b;
 printf("a | b = %d\n", result);
 ```
 
 ### 3. Bitwise XOR (^)
-Performs a bitwise exclusive OR operation. The result has a 1 where the operands differ.
+Performs a bitwise exclusive OR operation. The result has a 1 where the operands differ. This is commonly used for:
+- Finding bits that are different between two values
+- Toggling specific bits (XOR with 1 flips, XOR with 0 preserves)
+- Simple encryption/decryption algorithms
+- Swapping values without a temporary variable
 
 ```c
-unsigned char result = a ^ b;  // 0b01100110 (102 in decimal)
+// Bitwise XOR: result bit is 1 if bits are different
+// a:     1 0 1 0 1 0 1 0
+// b:     1 1 0 0 1 1 0 0
+// a ^ b: 0 1 1 0 0 1 1 0  = 102 in decimal
+unsigned char result = a ^ b;
 printf("a ^ b = %d\n", result);
 ```
 
 ### 4. Bitwise NOT (~)
-Flips all bits in the operand.
+Flips all bits in the operand. Every 0 becomes 1 and every 1 becomes 0. This is commonly used for:
+- Creating inverted masks (all bits set except specific ones)
+- Finding the two's complement (for negative numbers in two's complement)
+- Clearing all bits in a register by ANDing with ~0 (though this is redundant)
 
 ```c
-unsigned char result = ~a;  // For 8-bit: 0b01010101 (85 in decimal)
+// Bitwise NOT: flips all bits
+// a:        1 0 1 0 1 0 1 0
+// ~a:       0 1 0 1 0 1 0 1  = 85 in decimal (for 8-bit unsigned char)
+unsigned char result = ~a;
 printf("~a = %d\n", result);
 ```
 
 ### 5. Left Shift (<<)
-Shifts bits to the left by the specified number of positions, filling with zeros.
+Shifts bits to the left by the specified number of positions, filling with zeros on the right. This is equivalent to multiplying by 2^n (for n shift positions). Commonly used for:
+- Fast multiplication by powers of 2
+- Positioning bits at specific locations in a word
+- Creating bit masks for specific bit ranges
 
 ```c
-unsigned char result = a << 2;  // 0b10101000 (168 in decimal)
+// Left shift: moves bits left, fills right with zeros
+// a:        1 0 1 0 1 0 1 0
+// a << 2:   1 0 1 0 1 0 0 0  = 168 in decimal (original * 4)
+unsigned char result = a << 2;
 printf("a << 2 = %d\n", result);
 ```
 
 ### 6. Right Shift (>>)
-Shifts bits to the right by the specified number of positions. For unsigned types, fills with zeros.
+Shifts bits to the right by the specified number of positions. For unsigned types, fills with zeros on the left. For signed types, may sign-extend. This is equivalent to dividing by 2^n. Commonly used for:
+- Fast division by powers of 2 (unsigned types)
+- Extracting higher-order bits
+- Converting between different bit field positions
 
 ```c
-unsigned char result = a >> 2;  // 0b00101010 (42 in decimal)
+// Right shift: moves bits right, fills left with zeros (unsigned)
+// a:        1 0 1 0 1 0 1 0
+// a >> 2:   0 0 1 0 1 0 1 0  = 42 in decimal (original / 4)
+unsigned char result = a >> 2;
 printf("a >> 2 = %d\n", result);
 ```
 
 ## Basic Bit Manipulation Techniques
 
 ### Setting a Bit
-To set a specific bit (make it 1):
+To set a specific bit (make it 1). This is commonly used to enable features or flags:
 
 ```c
-unsigned char set_bit = a | (1 << position);  // position is 0-indexed from right
+// Create a mask with only the target bit set: (1 << position)
+// OR with the original value ensures the bit becomes 1 without affecting others
+unsigned char set_bit = a | (1 << position);  // position is 0-indexed from right (LSB is 0)
 ```
 
 ### Clearing a Bit
-To clear a specific bit (make it 0):
+To clear a specific bit (make it 0). This is commonly used to disable features or reset flags:
 
 ```c
+// Create a mask with only the target bit cleared: ~(1 << position)
+// AND with the original value ensures the bit becomes 0 without affecting others
 unsigned char clear_bit = a & ~(1 << position);
 ```
 
 ### Toggling a Bit
-To flip a specific bit:
+To flip a specific bit. This is commonly used for switching states (on/off, high/low):
 
 ```c
+// XOR with a mask containing only the target bit set
+// XOR with 1 flips the bit, XOR with 0 leaves it unchanged
 unsigned char toggle_bit = a ^ (1 << position);
 ```
 
 ### Checking if a Bit is Set
-To check if a specific bit is 1:
+To check if a specific bit is 1. This is commonly used for conditional logic based on flags:
 
 ```c
+// AND with a mask isolates the target bit
+// Non-zero result means the bit was set, zero means it was clear
 int is_set = (a & (1 << position)) != 0;
 ```
 
