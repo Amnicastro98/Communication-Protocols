@@ -1,19 +1,14 @@
-/*
- * Advanced Bitwise Operators and Bit Manipulation in C
- *
- * This file covers advanced techniques for bit manipulation:
- * - Bit masking and extraction
- * - Bit fields in structs
- * - Efficient algorithms using bitwise operations
- * - Hardware register manipulation (common in embedded systems)
- * - Bit reversal and counting set bits
- * - Gray code conversion
- */
+# Advanced Bitwise Operators and Bit Manipulation in C
 
-#include <stdio.h>
+This document covers advanced techniques for bit manipulation, including efficient algorithms, hardware register manipulation, and complex bit operations commonly used in embedded systems.
+
+## Bit Fields and Hardware Registers
+
+Bit fields allow you to specify the exact number of bits for struct members, which is useful for hardware register manipulation:
+
+```c
 #include <stdint.h>
 
-// Bit field example - common in embedded systems for hardware registers
 typedef union {
     uint32_t reg;  // Full 32-bit register
     struct {
@@ -26,8 +21,12 @@ typedef union {
         uint32_t reserved : 16; // Remaining bits
     } bits;
 } HardwareRegister;
+```
 
-// Function to count set bits (population count)
+## Efficient Bit Counting Algorithms
+
+### Basic Bit Counting
+```c
 int count_set_bits(uint32_t n) {
     int count = 0;
     while (n) {
@@ -36,8 +35,10 @@ int count_set_bits(uint32_t n) {
     }
     return count;
 }
+```
 
-// Efficient bit counting using Brian Kernighan's algorithm
+### Brian Kernighan's Algorithm (More Efficient)
+```c
 int count_set_bits_efficient(uint32_t n) {
     int count = 0;
     while (n) {
@@ -46,8 +47,11 @@ int count_set_bits_efficient(uint32_t n) {
     }
     return count;
 }
+```
 
-// Function to reverse bits in a byte
+## Bit Reversal
+
+```c
 uint8_t reverse_bits(uint8_t n) {
     uint8_t result = 0;
     for (int i = 0; i < 8; i++) {
@@ -56,13 +60,19 @@ uint8_t reverse_bits(uint8_t n) {
     }
     return result;
 }
+```
 
-// Function to check if a number is a power of 2
+## Power of 2 Operations
+
+### Check if Power of 2
+```c
 int is_power_of_two(uint32_t n) {
     return n && !(n & (n - 1));
 }
+```
 
-// Function to find the next power of 2
+### Find Next Power of 2
+```c
 uint32_t next_power_of_two(uint32_t n) {
     if (n == 0) return 1;
     n--;
@@ -73,13 +83,21 @@ uint32_t next_power_of_two(uint32_t n) {
     n |= n >> 16;
     return n + 1;
 }
+```
 
-// Binary to Gray code conversion
+## Gray Code Conversion
+
+Gray code is a binary numeral system where two consecutive values differ in only one bit.
+
+### Binary to Gray Code
+```c
 uint32_t binary_to_gray(uint32_t n) {
     return n ^ (n >> 1);
 }
+```
 
-// Gray code to binary conversion
+### Gray Code to Binary
+```c
 uint32_t gray_to_binary(uint32_t n) {
     uint32_t result = n;
     while (n >>= 1) {
@@ -87,86 +105,158 @@ uint32_t gray_to_binary(uint32_t n) {
     }
     return result;
 }
+```
 
-// Bit manipulation for embedded hardware control
-void hardware_register_demo() {
-    HardwareRegister reg;
-    reg.reg = 0x00000000;  // Initialize register
+## Bit Masking and Extraction
 
-    // Set individual bits
-    reg.bits.bit0 = 1;
-    reg.bits.bit1 = 0;
-    reg.bits.bit2 = 1;
-    reg.bits.nibble = 0xA;  // Set 4-bit field to 10 (binary 1010)
-    reg.bits.byte = 0xFF;   // Set 8-bit field to 255
+### Extracting Specific Bits
+```c
+uint32_t data = 0xABCD1234;
 
-    printf("Hardware Register Demo:\n");
-    printf("Full register: 0x%08X\n", reg.reg);
-    printf("Bit 0: %d\n", reg.bits.bit0);
-    printf("Bit 1: %d\n", reg.bits.bit1);
-    printf("Bit 2: %d\n", reg.bits.bit2);
-    printf("Nibble: 0x%X\n", reg.bits.nibble);
-    printf("Byte: 0x%X\n\n", reg.bits.byte);
+// Extract lower 8 bits
+uint8_t lower_byte = data & 0xFF;
+
+// Extract bits 8-15
+uint8_t middle_byte = (data >> 8) & 0xFF;
+
+// Extract upper 16 bits
+uint16_t upper_half = (data >> 16) & 0xFFFF;
+```
+
+### Setting Specific Bit Ranges
+```c
+// Set bits 8-15 to 0x42
+uint32_t modified = (data & ~0xFF00) | (0x42 << 8);
+```
+
+## Advanced Bit Manipulation Techniques
+
+### Bit Rotation
+```c
+// Left rotate
+uint32_t rotate_left(uint32_t n, int positions) {
+    return (n << positions) | (n >> (32 - positions));
 }
 
-int main() {
-    printf("Advanced Bitwise Operations and Bit Manipulation\n\n");
-
-    // Bit counting
-    uint32_t test_num = 0b10110100;  // 180 in decimal
-    printf("Number: %d (binary: %08b)\n", test_num, test_num);
-    printf("Set bits (basic): %d\n", count_set_bits(test_num));
-    printf("Set bits (efficient): %d\n\n", count_set_bits_efficient(test_num));
-
-    // Bit reversal
-    uint8_t byte = 0b11010011;
-    printf("Original byte: %d (binary: %08b)\n", byte, byte);
-    printf("Reversed byte: %d (binary: %08b)\n\n", reverse_bits(byte), reverse_bits(byte));
-
-    // Power of 2 checks
-    uint32_t powers[] = {1, 2, 4, 8, 16, 6, 15};
-    for (int i = 0; i < 7; i++) {
-        printf("%d is power of 2: %s\n", powers[i], is_power_of_two(powers[i]) ? "Yes" : "No");
-    }
-    printf("\n");
-
-    // Next power of 2
-    uint32_t nums[] = {5, 10, 17, 31};
-    for (int i = 0; i < 4; i++) {
-        printf("Next power of 2 for %d: %d\n", nums[i], next_power_of_two(nums[i]));
-    }
-    printf("\n");
-
-    // Gray code conversion
-    uint32_t binary = 0b1011;
-    uint32_t gray = binary_to_gray(binary);
-    uint32_t back_to_binary = gray_to_binary(gray);
-    printf("Binary: %d (binary: %04b)\n", binary, binary);
-    printf("Gray: %d (binary: %04b)\n", gray, gray);
-    printf("Back to binary: %d (binary: %04b)\n\n", back_to_binary, back_to_binary);
-
-    // Hardware register demo
-    hardware_register_demo();
-
-    // Bit extraction and masking
-    uint32_t data = 0xABCD1234;
-    printf("Full data: 0x%08X\n", data);
-
-    // Extract lower 8 bits
-    uint8_t lower_byte = data & 0xFF;
-    printf("Lower byte: 0x%02X\n", lower_byte);
-
-    // Extract bits 8-15
-    uint8_t middle_byte = (data >> 8) & 0xFF;
-    printf("Middle byte: 0x%02X\n", middle_byte);
-
-    // Extract upper 16 bits
-    uint16_t upper_half = (data >> 16) & 0xFFFF;
-    printf("Upper half: 0x%04X\n", upper_half);
-
-    // Set specific bit range
-    uint32_t modified = (data & ~0xFF00) | (0x42 << 8);  // Set bits 8-15 to 0x42
-    printf("Modified data: 0x%08X\n", modified);
-
-    return 0;
+// Right rotate
+uint32_t rotate_right(uint32_t n, int positions) {
+    return (n >> positions) | (n << (32 - positions));
 }
+```
+
+### Finding Bit Position
+```c
+// Find position of least significant set bit
+int lowest_set_bit(uint32_t n) {
+    if (n == 0) return -1;
+    int pos = 0;
+    while ((n & 1) == 0) {
+        n >>= 1;
+        pos++;
+    }
+    return pos;
+}
+
+// Find position of most significant set bit
+int highest_set_bit(uint32_t n) {
+    if (n == 0) return -1;
+    int pos = 0;
+    while (n >>= 1) {
+        pos++;
+    }
+    return pos;
+}
+```
+
+### Bit Interleaving (Morton Code)
+```c
+// Interleave bits of two 16-bit numbers into a 32-bit Morton code
+uint32_t morton_code(uint16_t x, uint16_t y) {
+    uint32_t result = 0;
+    for (int i = 0; i < 16; i++) {
+        result |= ((x >> i) & 1) << (2 * i);
+        result |= ((y >> i) & 1) << (2 * i + 1);
+    }
+    return result;
+}
+```
+
+## Hardware-Specific Applications
+
+### GPIO Pin Control
+```c
+#define GPIO_PORTA_DATA  (*((volatile uint32_t *)0x40004000))
+#define PIN_MASK(pin)    (1 << pin)
+
+// Set pin high
+void gpio_set_pin(int pin) {
+    GPIO_PORTA_DATA |= PIN_MASK(pin);
+}
+
+// Clear pin low
+void gpio_clear_pin(int pin) {
+    GPIO_PORTA_DATA &= ~PIN_MASK(pin);
+}
+
+// Toggle pin
+void gpio_toggle_pin(int pin) {
+    GPIO_PORTA_DATA ^= PIN_MASK(pin);
+}
+```
+
+### Interrupt Flag Manipulation
+```c
+#define INTERRUPT_FLAGS (*((volatile uint32_t *)0xE000E200))
+
+// Clear interrupt flag
+void clear_interrupt_flag(int flag) {
+    INTERRUPT_FLAGS |= (1 << flag);
+}
+
+// Check if interrupt is pending
+int is_interrupt_pending(int flag) {
+    return (INTERRUPT_FLAGS & (1 << flag)) != 0;
+}
+```
+
+## Performance Considerations
+
+- Bitwise operations are generally very fast
+- Use unsigned types to avoid undefined behavior with shifts
+- Bit fields can save memory but may have alignment issues
+- Consider endianness when working with multi-byte data
+- Use volatile for hardware registers to prevent compiler optimization
+
+## Common Pitfalls
+
+1. **Sign Extension**: Right shift on signed integers can sign-extend
+2. **Undefined Behavior**: Left shifting negative numbers or shifting by more than type width
+3. **Endianness**: Bit field layout can vary between big-endian and little-endian systems
+4. **Alignment**: Bit fields may introduce padding bytes
+5. **Volatile**: Forgetting to use volatile for hardware registers
+
+## Example: Complete Bit Manipulation Library
+
+```c
+#include <stdint.h>
+
+// Bit manipulation macros
+#define BIT_SET(reg, bit)     ((reg) |= (1 << (bit)))
+#define BIT_CLEAR(reg, bit)   ((reg) &= ~(1 << (bit)))
+#define BIT_TOGGLE(reg, bit)  ((reg) ^= (1 << (bit)))
+#define BIT_CHECK(reg, bit)   ((reg) & (1 << (bit)))
+
+// Bit mask operations
+#define MASK_SET(reg, mask)   ((reg) |= (mask))
+#define MASK_CLEAR(reg, mask) ((reg) &= ~(mask))
+#define MASK_TOGGLE(reg, mask) ((reg) ^= (mask))
+
+// Utility functions
+uint32_t reverse_bits_32(uint32_t n);
+int count_leading_zeros(uint32_t n);
+int count_trailing_zeros(uint32_t n);
+uint32_t isolate_rightmost_set_bit(uint32_t n);
+uint32_t isolate_rightmost_cleared_bit(uint32_t n);
+```
+
+This advanced guide provides the foundation for complex bit manipulation tasks in embedded systems, from basic hardware control to sophisticated algorithms.
