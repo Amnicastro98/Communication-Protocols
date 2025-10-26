@@ -93,30 +93,60 @@ int is_set = (a & (1 << position)) != 0;
 ## Example Program
 
 ```c
-#include <stdio.h>
+#include <stdio.h>  // Include standard I/O library for printf function
 
 int main() {
-    unsigned char a = 0b10101010;  // 170
-    unsigned char b = 0b11001100;  // 204
+    // Initialize two unsigned char variables with binary literals
+    // unsigned char is 8 bits, perfect for bit manipulation examples
+    unsigned char a = 0b10101010;  // 170 in decimal (AA in hex)
+    unsigned char b = 0b11001100;  // 204 in decimal (CC in hex)
 
+    // Print the initial values in both decimal and binary format
+    // %08b prints exactly 8 binary digits with leading zeros
     printf("a = %d (0b%08b)\n", a, a);
     printf("b = %d (0b%08b)\n\n", b, b);
 
-    // Demonstrate all operators
+    // Demonstrate all bitwise operators with explanations
+    // Each operation shows the result in decimal and binary
+
+    // Bitwise AND: Result has 1 only where both bits are 1
     printf("a & b = %d (0b%08b)\n", a & b, a & b);
+
+    // Bitwise OR: Result has 1 where either bit is 1
     printf("a | b = %d (0b%08b)\n", a | b, a | b);
+
+    // Bitwise XOR: Result has 1 where bits are different
     printf("a ^ b = %d (0b%08b)\n", a ^ b, a ^ b);
+
+    // Bitwise NOT: Flips all bits (cast to unsigned char to avoid sign extension)
     printf("~a = %d (0b%08b)\n", (unsigned char)~a, (unsigned char)~a);
+
+    // Left shift: Shifts bits left by 2 positions, fills with zeros
     printf("a << 2 = %d (0b%08b)\n", a << 2, a << 2);
+
+    // Right shift: Shifts bits right by 2 positions, fills with zeros (unsigned)
     printf("a >> 2 = %d (0b%08b)\n\n", a >> 2, a >> 2);
 
-    // Bit manipulation examples
+    // Practical bit manipulation examples
+    // These are commonly used in embedded systems for hardware control
+
+    // Setting a bit: Use OR with a mask to set bit 3 (4th bit from right)
+    // (1 << 3) creates 0b00001000, OR ensures that bit becomes 1
     printf("Setting bit 3 in a: %d (0b%08b)\n", a | (1 << 3), a | (1 << 3));
+
+    // Clearing a bit: Use AND with inverted mask to clear bit 3
+    // ~(1 << 3) creates 0b11110111, AND ensures that bit becomes 0
     printf("Clearing bit 3 in a: %d (0b%08b)\n", a & ~(1 << 3), a & ~(1 << 3));
+
+    // Toggling a bit: Use XOR with mask to flip bit 3
+    // XOR with 1 flips the bit, XOR with 0 leaves it unchanged
     printf("Toggling bit 3 in a: %d (0b%08b)\n", a ^ (1 << 3), a ^ (1 << 3));
+
+    // Checking if a bit is set: Use AND with mask and compare to 0
+    // If result != 0, the bit was set; if == 0, the bit was clear
     printf("Is bit 3 set in a? %s\n", (a & (1 << 3)) ? "Yes" : "No");
 
-    return 0;
+    return 0;  // Return 0 to indicate successful program execution
 }
 ```
 
