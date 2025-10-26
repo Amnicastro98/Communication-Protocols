@@ -1,0 +1,172 @@
+/*
+ * Advanced Bitwise Operators and Bit Manipulation in C
+ *
+ * This file covers advanced techniques for bit manipulation:
+ * - Bit masking and extraction
+ * - Bit fields in structs
+ * - Efficient algorithms using bitwise operations
+ * - Hardware register manipulation (common in embedded systems)
+ * - Bit reversal and counting set bits
+ * - Gray code conversion
+ */
+
+#include <stdio.h>
+#include <stdint.h>
+
+// Bit field example - common in embedded systems for hardware registers
+typedef union {
+    uint32_t reg;  // Full 32-bit register
+    struct {
+        uint32_t bit0 : 1;
+        uint32_t bit1 : 1;
+        uint32_t bit2 : 1;
+        uint32_t bit3 : 1;
+        uint32_t nibble : 4;  // 4-bit field
+        uint32_t byte : 8;    // 8-bit field
+        uint32_t reserved : 16; // Remaining bits
+    } bits;
+} HardwareRegister;
+
+// Function to count set bits (population count)
+int count_set_bits(uint32_t n) {
+    int count = 0;
+    while (n) {
+        count += n & 1;
+        n >>= 1;
+    }
+    return count;
+}
+
+// Efficient bit counting using Brian Kernighan's algorithm
+int count_set_bits_efficient(uint32_t n) {
+    int count = 0;
+    while (n) {
+        n &= (n - 1);  // Clear the least significant set bit
+        count++;
+    }
+    return count;
+}
+
+// Function to reverse bits in a byte
+uint8_t reverse_bits(uint8_t n) {
+    uint8_t result = 0;
+    for (int i = 0; i < 8; i++) {
+        result = (result << 1) | (n & 1);
+        n >>= 1;
+    }
+    return result;
+}
+
+// Function to check if a number is a power of 2
+int is_power_of_two(uint32_t n) {
+    return n && !(n & (n - 1));
+}
+
+// Function to find the next power of 2
+uint32_t next_power_of_two(uint32_t n) {
+    if (n == 0) return 1;
+    n--;
+    n |= n >> 1;
+    n |= n >> 2;
+    n |= n >> 4;
+    n |= n >> 8;
+    n |= n >> 16;
+    return n + 1;
+}
+
+// Binary to Gray code conversion
+uint32_t binary_to_gray(uint32_t n) {
+    return n ^ (n >> 1);
+}
+
+// Gray code to binary conversion
+uint32_t gray_to_binary(uint32_t n) {
+    uint32_t result = n;
+    while (n >>= 1) {
+        result ^= n;
+    }
+    return result;
+}
+
+// Bit manipulation for embedded hardware control
+void hardware_register_demo() {
+    HardwareRegister reg;
+    reg.reg = 0x00000000;  // Initialize register
+
+    // Set individual bits
+    reg.bits.bit0 = 1;
+    reg.bits.bit1 = 0;
+    reg.bits.bit2 = 1;
+    reg.bits.nibble = 0xA;  // Set 4-bit field to 10 (binary 1010)
+    reg.bits.byte = 0xFF;   // Set 8-bit field to 255
+
+    printf("Hardware Register Demo:\n");
+    printf("Full register: 0x%08X\n", reg.reg);
+    printf("Bit 0: %d\n", reg.bits.bit0);
+    printf("Bit 1: %d\n", reg.bits.bit1);
+    printf("Bit 2: %d\n", reg.bits.bit2);
+    printf("Nibble: 0x%X\n", reg.bits.nibble);
+    printf("Byte: 0x%X\n\n", reg.bits.byte);
+}
+
+int main() {
+    printf("Advanced Bitwise Operations and Bit Manipulation\n\n");
+
+    // Bit counting
+    uint32_t test_num = 0b10110100;  // 180 in decimal
+    printf("Number: %d (binary: %08b)\n", test_num, test_num);
+    printf("Set bits (basic): %d\n", count_set_bits(test_num));
+    printf("Set bits (efficient): %d\n\n", count_set_bits_efficient(test_num));
+
+    // Bit reversal
+    uint8_t byte = 0b11010011;
+    printf("Original byte: %d (binary: %08b)\n", byte, byte);
+    printf("Reversed byte: %d (binary: %08b)\n\n", reverse_bits(byte), reverse_bits(byte));
+
+    // Power of 2 checks
+    uint32_t powers[] = {1, 2, 4, 8, 16, 6, 15};
+    for (int i = 0; i < 7; i++) {
+        printf("%d is power of 2: %s\n", powers[i], is_power_of_two(powers[i]) ? "Yes" : "No");
+    }
+    printf("\n");
+
+    // Next power of 2
+    uint32_t nums[] = {5, 10, 17, 31};
+    for (int i = 0; i < 4; i++) {
+        printf("Next power of 2 for %d: %d\n", nums[i], next_power_of_two(nums[i]));
+    }
+    printf("\n");
+
+    // Gray code conversion
+    uint32_t binary = 0b1011;
+    uint32_t gray = binary_to_gray(binary);
+    uint32_t back_to_binary = gray_to_binary(gray);
+    printf("Binary: %d (binary: %04b)\n", binary, binary);
+    printf("Gray: %d (binary: %04b)\n", gray, gray);
+    printf("Back to binary: %d (binary: %04b)\n\n", back_to_binary, back_to_binary);
+
+    // Hardware register demo
+    hardware_register_demo();
+
+    // Bit extraction and masking
+    uint32_t data = 0xABCD1234;
+    printf("Full data: 0x%08X\n", data);
+
+    // Extract lower 8 bits
+    uint8_t lower_byte = data & 0xFF;
+    printf("Lower byte: 0x%02X\n", lower_byte);
+
+    // Extract bits 8-15
+    uint8_t middle_byte = (data >> 8) & 0xFF;
+    printf("Middle byte: 0x%02X\n", middle_byte);
+
+    // Extract upper 16 bits
+    uint16_t upper_half = (data >> 16) & 0xFFFF;
+    printf("Upper half: 0x%04X\n", upper_half);
+
+    // Set specific bit range
+    uint32_t modified = (data & ~0xFF00) | (0x42 << 8);  // Set bits 8-15 to 0x42
+    printf("Modified data: 0x%08X\n", modified);
+
+    return 0;
+}
